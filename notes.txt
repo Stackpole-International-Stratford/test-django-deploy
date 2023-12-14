@@ -1,0 +1,106 @@
+Make the cookie cutter Django app with the in blog specifications
+
+python3.9 -m venv djangodeploy
+
+python3.9 -m pip install --trusted-host pypi.python.org --trusted-host files.pythonhosted.org --trusted-host pypi.org django==4.1
+
+echo "export SECRET_KEY='$(openssl rand -hex 40)'" > .DJANGO_SECRET_KEY
+
+source .DJANGO_SECRET_KEY
+
+python3.9 -m pip install
+ --trusted-host pypi.python.org --trusted-host files.pythonhosted.org --trusted-host pypi.org ht
+tpie
+
+alias GET='http --follow --timeout 6'
+
+python manage.py check
+
+nohup python manage.py runserver & 
+jobs -l
+
+python3.9 manage.py migrate
+
+python3.9 -m pip install
+  --trusted-host pypi.python.org --trusted-host files.pythonhosted.org --trusted-host pypi.org '
+gunicorn
+
+sudo mkdir -pv /var/{log,run}/gunicorn/
+
+sudo chown -cR ubuntu:ubuntu /var/{log,run}/gunicorn/    
+
+gunicorn -c config/gunicorn/dev.py
+
+sudo apt-get install -y nginx
+
+cd "/etc/nginx/sites-available"
+
+sudo chown -cR skuehl /etc/nginx/sites-available/supersecure
+
+
+sudo touch supersecure
+
+nano supersecure
+
+write the following to it:
+server_tokens off;
+ access_log /var/log/nginx/supersecure.access.log;
+ error_log /var/log/nginx/supersecure.error.log;
+ # This configuration will be changed to redirect to HTTPS later 
+server { 
+server_name .supersecure.codes;	#change this to domain name
+ listen 80;
+ location / { proxy_pass http://localhost:8000;
+ proxy_set_header Host $host; 
+} 
+}
+
+Now inside Django project dir:
+
+mkdir -p static/js
+
+cd static/js
+
+touch greenlight.js
+
+nano greenlight.js
+
+add this to it:
+
+// Enlarge the #changeme element in green when hovered over (function () { "use strict"; function enlarge() { document.getElementById("changeme").style.color = "green"; document.getElementById("changeme").style.fontSize = "xx-large"; return false; } document.getElementById("changeme").addEventListener("mouseover", enlarge); }());
+
+The go back to project dir then:
+
+cd testproject
+
+nano settings.py
+
+add to it:
+STATIC_URL = "/static/" # Note: Replace 'supersecure.codes' with your domain STATIC_ROOT = "/var/www/supersecure.codes/static" STATICFILES_DIRS = [BASE_DIR / "static"]
+
+
+Then in myapp/templates/myapp/home.html add:
+<script src="/static/js/greenlight.js">
+sudo mkdir -pv /var/www/supersecure.codes/static/
+
+sudo chown -cR skuehl /var/www/supersecure.codes/
+
+back in Django project dir:
+python3 manage.py collectstatic
+
+in /etc/nginx/sites-available/   add the following to the file “supersecure” under the other “location”:
+
+location /static { autoindex on; alias /var/www/supersecure.codes/static/; }
+
+in testproject/settings.py:
+
+DEBUG = False
+
+
+
+sudo snap install --classic certbot
+
+sudo ln -s /snap/bin/certbot /usr/bin/certbot
+
+sudo certbot --nginx --rsa-key-size 4096 --no-redirect
+
